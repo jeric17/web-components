@@ -1,10 +1,13 @@
 const style = `
   .root {
+    align-items: center;
     background-color: #efefef;
     cursor: pointer;
     display: flex;
+    height: 70px;
+    justify-content: center;
     margin: 8px;
-    padding: 1em;
+    width: 70px;
   }
 `;
 
@@ -21,7 +24,7 @@ class SlidePuzzleItem extends Component {
   }
 
   render() {
-    const itemIndex = this.getAttribute('itemindex') || '';
+    const itemIndex = Number(this.getAttribute('itemindex')) || '';
     return this.mount('span', {
       className: 'root'
     }, itemIndex);

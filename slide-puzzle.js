@@ -2,6 +2,9 @@ const slidePuzzleStyle = `
   .root__row {
     display: flex;
   }
+  .root {
+    margin: 0 0 80px;
+  }
 `;
 
 class SlidePuzzle extends Component {
@@ -9,7 +12,7 @@ class SlidePuzzle extends Component {
     super();
     this.onClick = this.onClick.bind(this);
 
-    this.state = this.getGridState(3);
+    this.state = this.getGridState(Number(this.getAttribute('size')));
 
     this.componentRender();
     this.setStyles(slidePuzzleStyle);
@@ -27,7 +30,7 @@ class SlidePuzzle extends Component {
       temp.push(i);
     }
 
-    arrayData.forEach(item => {
+    arrayData.forEach((item) => {
       const random = Math.floor(Math.random() * temp.length);
       const spliced = temp.splice(random, 1);
       shuffled.push(spliced[0]);
@@ -54,7 +57,34 @@ class SlidePuzzle extends Component {
     return {
       grid: matrix,
       zeroCoords,
+      // grid: [[1,2,3], [4,5,0], [7, 8, 6]],
+      // zeroCoords: {x: 2, y: 1},
+      shuffled,
     };
+  }
+
+  isFinished() {
+    let isOk = true;
+    const { grid } = this.state;
+    const flatten = grid.reduce((c, n) => c.concat(n), []);
+
+    let index = 1;
+    while(isOk && index < flatten.length) {
+      if (flatten[index] === 0 && index === flatten.length - 1) {
+        isOk = true;
+        break;
+      }
+      if (flatten[index] > flatten[index - 1]) {
+        isOk = true;
+      } else {
+        isOk = false;
+      }
+      index += 1;
+    }
+
+    if (isOk) {
+      window.alert('Success!');
+    }
   }
 
   setZeroCoords(x, y) {
@@ -86,12 +116,28 @@ class SlidePuzzle extends Component {
   }
 
   onClick(gridItem, evt) {
-    console.log('gridItem', gridItem);
-    console.log(this.state.zeroCoords);
+    const {x, y} = this.state.zeroCoords;
 
     const valid = this.isValid(gridItem);
 
-    console.log(valid);
+    if (!valid) {
+      return false;
+    }
+
+    const grid = [...this.state.grid];
+
+    grid[y][x] = gridItem.gridItem;
+    grid[gridItem.matrixIndex][gridItem.rowIndex] = 0;
+
+    this.setState({
+      zeroCoords: {
+        x: gridItem.rowIndex,
+        y: gridItem.matrixIndex,
+      },
+      grid,
+    });
+    this.isFinished();
+    return false;
   }
 
   render() {
